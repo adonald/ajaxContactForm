@@ -4,6 +4,13 @@ Simple AJAX & PHP contact form with fallback for when JavaScript is disabled.
 
 Created by [Alex Donald](https://www.adonald.co.uk).
 
+1. [Quick Start](#quick-start)
+2. [PHP Options](#php-options)
+3. [HTML Form](#html-form)
+4. [JavaScript](#javascript)
+5. [Fallback Behaviour](#fallback-behaviour)
+6. [Work in Progress](#work-in-progress)
+
 ## Quick Start
 
 1. Edit the main options in `ajaxContactForm.php`.
