@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!--
+        AJAX contact form for website
+        Author: Alex Donald
+        Website: https://www.adonald.co.uk
+        Date: 2016-01-08
+        License: MIT
+    -->
+    
+    <!-- simple css for form, feel free to make/include your own! -->
+    <style type="text/css">
+        #acf {
+            width: 80%;
+            max-width: 600px;
+            margin: 25px auto;
+        }
+        #acf input, #acf textarea {
+            padding: 5px;
+            width: 75%;
+            margin: 5px 0 10px 0;
+        }
+        #acf textarea {
+            height: 90px;
+        }
+        #acf button {
+            float: right;
+            margin-right: 20px;
+        }
+        #acf label {
+            width: 20%;
+            float: left;
+            padding-top: 5px;
+            margin: 5px 0 10px 0;
+        }
+        #acf form:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        #acf #ajaxContactFormResult {
+            display: none;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        #acf #ajaxContactFormResult.acf_error {
+            color: #f00;
+            display: block;
+        }
+        #acf #ajaxContactFormResult.acf_success {
+            color: #0f0;
+            display: block;
+        }
+    </style>
+    
+    <!-- Site specific meta data -->
+    <title>Alex's AJAX contact form</title>
+    <meta name="description" content="AJAX contact form">
+    <meta name="keywords" content="AJAX, contact, form, JavaScript, PHP">
+    <meta name="author" content="Alex Donald">
+    
+</head>
+<body>
+
+    <div id="acf">
+        <h2>AJAX Contact Form</h2>
+        <form action="/contact/ajaxContactForm.php" method="post" name="ajaxContactForm" id="ajaxContactForm" novalidate>
+            <input type="hidden" id="ajax" name="ajax" value="false">
+            
+            <label for="name">Name: </label>
+            <input type="text" placeholder="Your name *" id="name" name="name" required>
+            
+            <label for="email">Email: </label>
+            <input type="email" placeholder="Your email address *" id="email" name="email" required data-error="Please enter a valid email address.">
+            
+            <label for="message">Message: </label>
+            <textarea rows="6" placeholder="Your message *" id="message" name="message" required></textarea>
+            
+            <button type="submit" name="submit">Send Message</button>
+        </form>
+        <div id="ajaxContactFormResult"></div>
+    </div>
+    
+    <script type="text/javascript" src="/contact/ajaxContactForm.js"></script>
+    <script type="text/javascript">
+        (function(acf){
+            // Set the element IDs for the contact form, and the results div.
+            // acf.setID(contactFormID, resultDivID)
+            acf.setId("ajaxContactForm", "ajaxContactFormResult");
+            acf.initialise();
+        })(ajaxContactForm);
+    </script>
+
+</body>
+</html>
