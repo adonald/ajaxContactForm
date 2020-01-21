@@ -21,6 +21,7 @@
         'error_message'      => 'There has been a problem, please try again later.',
         );
     private $result = array();
+    private $boundary = "";
     
     /*==========================================================================
      * Constructor - sets up options from array passed when initiating
@@ -29,6 +30,7 @@
     public function __construct($sent_options)
     {
         $this->options = array_merge($this->options, $sent_options);
+        $this->boundary = uniqid('np');
     }
     
     /*==========================================================================
@@ -36,43 +38,58 @@
      * information. You can change things here, but be careful!
      *========================================================================*/
     
-    private function compile_email_body($form_input)
+    private function compile_email_body_html($form_input)
     {
         // Set up array in which to build message body
         $email_body = array();
         
-        if ($this->options['send_html_email'])
-        {
-            // Change carriage returns to <br /> tags for HTML version
-            $form_message_breaks = nl2br($form_input['form_message']);
-            
-            /*
-             * Change these lines for HTML emails.
-             */
-            $email_body[] = "<html><body>";
-            $email_body[] = "<h2>You have received a new message from your website contact form.</h2>";
-            $email_body[] = "<p>Here are the details:</p>";
-            $email_body[] = "<h3>Message from: " . $form_input['form_name'] . "</h3>";
-            $email_body[] = "<p>Email address: " . $form_input['form_email'] . "</p>";
-            $email_body[] = "<p>" . $form_message_breaks . "</p>";
-            $email_body[] = "</html></body>";
+        // Change carriage returns to <br /> tags for HTML version
+        $form_message_breaks = nl2br($form_input['form_message']);
+        
+        // Set boundary for multipart emails (i.e. plain text and HTML combined)
+        $email_body[] = "--" . $this->boundary;
+        $email_body[] = "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+        /*
+        * Change these lines for HTML emails.
+        */
+        $email_body[] = "<html><body>";
+        $email_body[] = "<h2>You have received a new message from your website contact form.</h2>";
+        $email_body[] = "<p>Here are the details:</p>";
+        $email_body[] = "<h3>Message from: " . $form_input['form_name'] . "</h3>";
+        $email_body[] = "<p>Email address: " . $form_input['form_email'] . "</p>";
+        $email_body[] = "<p>" . $form_message_breaks . "</p>";
+        $email_body[] = "</html></body>";
+        
+        // implode array with line breaks to split each entry
+        $compiled_body = implode("\r\n", $email_body);
+        return $compiled_body;
+    }
+
+    private function compile_email_body_text($form_input)
+    {
+        // Set up array in which to build message body
+        $email_body = array();
+        
+        // Set boundary for multipart emails (i.e. plain text and HTML combined)
+        if($this->options['send_html_email']){
+            $email_body[] = "--" . $this->boundary;
+            $email_body[] = "Content-type: text/plain; charset=ISO-8859-1\r\n";
         }
-        else
-        {
-            /*
-             * Change these lines for plain text emails.
-             * 
-             * plain text version... leaves quotes as html entities e.g.
-             * " will display as &#34;
-             * ' will display as &#39;
-             */
-            $email_body[] = "You have received a new message from your website contact form.";
-            $email_body[] = "Here are the details:";
-            $email_body[] = "Name: " . $form_input['form_name'];
-            $email_body[] = "Email: " . $form_input['form_email'];
-            $email_body[] = "Message:";
-            $email_body[] = $form_input['form_message'];
-        }
+
+        /*
+        * Change these lines for plain text emails.
+        * 
+        * plain text version... leaves quotes as html entities e.g.
+        * " will display as &#34;
+        * ' will display as &#39;
+        */
+        $email_body[] = "You have received a new message from your website contact form.";
+        $email_body[] = "Here are the details:";
+        $email_body[] = "Name: " . $form_input['form_name'];
+        $email_body[] = "Email: " . $form_input['form_email'];
+        $email_body[] = "Message:";
+        $email_body[] = $form_input['form_message'];
         
         // implode array with line breaks to split each entry
         $compiled_body = implode("\r\n", $email_body);
@@ -102,7 +119,13 @@
             $subject    = $this->remove_line_breaks($this->options['send_email_subject']);
             
             // compile form message into email body
-            $email_body = $this->compile_email_body($form_input);
+            if($this->options['send_html_email']){
+                $email_body = $this->compile_email_body_html($form_input)
+                            . "\r\n\r\n"
+                            . $this->compile_email_body_text($form_input);
+            } else {
+                $email_body = $this->compile_email_body_text($form_input);
+            }
             
             // compile headers
             $headers    = $this->compile_headers($form_input);
@@ -187,13 +210,14 @@
         // http://www.damonkohler.com/2008/12/email-injection.html
         // for information
         
-        $html_header  = "Content-Type: text/html; charset=ISO-8859-1";
-        $plain_header = "Content-type: text/plain; charset=iso-8859-1";
-        
         $headers      = array();
         $headers[]    = "MIME-Version: 1.0";
-        $headers[]    = ($this->options['send_html_email']) ? $html_header 
-                                                            : $plain_header;
+
+        if($this->options['send_html_email']){
+            $headers[] = "Content-Type: multipart/alternative;boundary=" . $this->boundary;
+        } else {
+            $headers[] = "Content-type: text/plain; charset=ISO-8859-1";
+        }
         
         $headers[]    = "From: " . $this->remove_line_breaks($this->options['send_from_name']
                             . " <" . $this->options['send_from_email'] . ">");
