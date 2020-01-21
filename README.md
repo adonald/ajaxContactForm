@@ -4,12 +4,13 @@ Simple AJAX & PHP contact form with fallback for when JavaScript is disabled.
 
 Created by [Alex Donald](https://www.adonald.co.uk).
 
-1. [Quick Start](#quick-start)
-2. [PHP Options](#php-options)
-3. [HTML Form](#html-form)
-4. [JavaScript](#javascript)
-5. [Fallback Behaviour](#fallback-behaviour)
-6. [Work in Progress](#work-in-progress)
+- [ajaxContactForm](#ajaxcontactform)
+  - [Quick Start](#quick-start)
+  - [PHP Options](#php-options)
+  - [HTML Form](#html-form)
+  - [JavaScript](#javascript)
+  - [Fallback Behaviour](#fallback-behaviour)
+  - [Work in Progress](#work-in-progress)
 
 ## Quick Start
 
@@ -61,6 +62,9 @@ your inbox for emails from your website.
 You can choose to receive HTML or plain text emails from the form using the
 `send_html_email` option. Plain text emails will encode both single and double
 quotes as HTML entities. i.e. `'` will become `&#39`, and `"` will become `&#34`.
+
+If you choose HTML emails, then _both_ HTML and plain text versions will be sent
+as a multipart email.
 
 The `success_message`, and `error_message` options will change the text seen in
 the result div.
